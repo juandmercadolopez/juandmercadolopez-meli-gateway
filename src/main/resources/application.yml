@@ -1,0 +1,32 @@
+server:
+  port: 9191
+
+spring:
+  application:
+    name: API-GATEWAY
+  cloud:
+    gateway:
+      routes:
+        - id: MUTANT-SERVICE
+          uri: lb://MUTANT-SERVICE
+          predicates:
+            - Path=/mutants/**
+          filters:
+            - name: CircuitBreaker
+              args:
+                - name: MUTANT-SERVICE
+                  fallbackuri: forward:/mutantServiceFallBack
+
+histrix:
+  command:
+    fallbackcmd:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 4000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: hystrix.stream, health, info
